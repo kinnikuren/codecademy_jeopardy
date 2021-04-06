@@ -1,7 +1,7 @@
 import pandas as pd
 import random
 
-pd.set_option('display.max_colwidth', -1)
+pd.set_option('display.max_colwidth', None)
 pd.set_option('display.width', None)
 
 jeopardy = pd.read_csv('jeopardy.csv')
@@ -9,28 +9,36 @@ jeopardy = pd.read_csv('jeopardy.csv')
 #print(jeopardy)
 #print(jeopardy.columns)
 
-#fix column names
+#Fix column names
 jeopardy.columns = [col.strip() for col in jeopardy.columns]
+
 #print(jeopardy.columns)
 #print(jeopardy)
 
 #print(jeopardy.Question)
+
+#####
 
 def filter_questions(df, word_list):
     #print(all(word in df.Question for word in word_list))
     filtered_df = df[df.Question.apply(lambda x: all(word.lower() in x.lower() for word in word_list))]
     #print(filtered_df)
     return filtered_df
-    
-    
-print(filter_questions(jeopardy, ["For"]))
-king_england_df = filter_questions(jeopardy, ["King", "England"])
+        
+#print(filter_questions(jeopardy, ["For"]))
+king_england_df = filter_questions(jeopardy, ["King", "England"]).reset_index()
 
+print("All questions containing 'King' and 'England':")
 print(king_england_df.Question)
+print("\n")
+print("Number of questions containing 'King' and 'England':")
 print(len(king_england_df))
 
-print(jeopardy)
+print("\n\n")
 
+#print(jeopardy)
+
+#New column converting original Value column to float
 jeopardy['Value_float'] = jeopardy.Value.apply(lambda x: float(x.strip('$').replace(',','')) if x != 'None' else 0)
 #print(jeopardy)
 #print(jeopardy.Value_float)
@@ -39,20 +47,31 @@ def calculate_avg_value(df):
     return df.Value_float.mean()
 
 king_df = filter_questions(jeopardy, ["King"])
-print(len(king_df))
+#print(len(king_df))
+print("Average value of questions containing 'King', excluding Final Jeopardy:")
 print(calculate_avg_value(king_df[king_df.Value_float != 0]))
+
+print("\n\n")
+
+########
 
 def unique_answers(df):
     return df.Answer.value_counts()
 
 king_df_value_counts = unique_answers(king_df)
+
+print("Answer counts for questions containing 'King':")
 print(king_df_value_counts)
+print("\n")
+print("Number of unique answers for questions containing 'King':")
 print(len(king_df_value_counts))
 
+print("\n\n")
 
+#########
 
 #add decades column
-print(jeopardy)
+#print(jeopardy)
 
 test_date = '2004-12-31'
 air_date_year = int(test_date.split('-')[0])
@@ -76,22 +95,28 @@ jeopardy['Decade'] = jeopardy['Air Date'].apply(determine_decade)
 #print(jeopardy[jeopardy["Air Date"] == "1996-12-06"].Decade)
 
 computer_df = filter_questions(jeopardy, ["Computer"])
-print(computer_df)
+#print(computer_df)
 
 computer_counts_df = computer_df.groupby("Decade").Question.count().reset_index()
 #print(computer_counts_df)
 computer_counts_df = computer_counts_df.rename(columns={"Question": "Question counts"})
+print("Frequency of questions containing 'Computer' by decade:")
 print(computer_counts_df)
+print("\n\n")
 
+#########
 
 #print(jeopardy)
-#group by round and category
-round_category_df = jeopardy.groupby(["Category", "Round"]).Question.count().reset_index().rename(columns={"Question": "Counts"})
-print(round_category_df)
 
+#Group by round and category
+
+round_category_df = jeopardy.groupby(["Category", "Round"]).Question.count().reset_index().rename(columns={"Question": "Counts"})
+#print(round_category_df)
    
 #print(round_category_df[round_category_df.Category.apply(lambda x: x.lower() == "literature")])
 literature_count_df = round_category_df[round_category_df.Category.apply(lambda x: x.lower() == "literature")].reset_index(drop=True)
+
+print("Frequency of LITERATURE category by round:")
 print(literature_count_df)
 
 def get_random_question(df):
@@ -102,6 +127,7 @@ def get_random_question(df):
     return rand_question, answer
 
 def jeopardy_practice():
+    print("JEOPARDY PRACTICE!")
     random_question, answer = get_random_question(jeopardy)
     print("Question: {}".format(random_question))
     user_input = input("Who/What is _____?: ")
@@ -112,7 +138,7 @@ def jeopardy_practice():
         print("Incorrect!")
     print("Answer: {}".format(answer))
 
-jeopardy_practice()
+#jeopardy_practice()
 
     
 
